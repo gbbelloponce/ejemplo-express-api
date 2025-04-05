@@ -1,0 +1,16 @@
+{
+  "name": "express-node-api-completa",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "node --watch index.js"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.14.0"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
