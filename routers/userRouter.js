@@ -1,37 +1,35 @@
 import { Router } from "express"
 
+import { UserService } from "../services/userService.js"
+
+const userService = new UserService();
+
 export const userRouter = Router()
 
 userRouter.get('/', (_, res) => {
-  const users = userService.getUsers();
+  const users = userService.getAllUsers();
   return res.status(200).json({ ok: true, data: users })
 })
 
 userRouter.get('/:id', (_, res) => {
-  /**
-   * - Agarrar id de request body
-   * - Pararselo a userService.getUserById() y agarrar lo que devuelva
-   * - Devolverlo con ok: true
-   */
+  const userIdToGet = req.params.id;
+  const user = userService.getUserById(userIdToGet);
+  return res.status(200).json({ ok: true, data: user })
 })
 
 userRouter.post('/', (req, res) => {
-  /**
-   * - Agarrar user de request body
-   * - Pasarselo a userService.createUser() y agarrar lo que devuelva
-   * - Devolverlo con ok: true y codigo de estado correspondiente
-   */
+  const userFromRequest = req.body;
+  const userCreated = userService.createUser(userFromRequest);
+  return res.status(201).json({ ok: true, data: userCreated });
 })
 
 userRouter.put('/:id', (req, res) => {
-  /**
-   * - Agarrar id de request url
-   * - Agarrar user de request body
-   * - Pasarle la desestructuracion entre el id de la request 
-   *      y el body de la request a userService.updateUser() 
-   *        y agarrar lo que devuelva
-   * - Devolverlo con ok: true y codigo de estado correspondiente
-   */
+  const userIdToModify = req.params.id;
+  const userBody = req.body;
+
+  const userModified = userService.updateUser({ id: userIdToModify, ...userBody });
+
+  return res.status(200).json({ ok: true, data: userModified });
 })
 
 userRouter.patch('/:id', (req, res) => {
@@ -50,9 +48,9 @@ userRouter.patch('/:id', (req, res) => {
 })
 
 userRouter.delete('/:id', (req, res) => {
-  /**
-   * - Agarrar id de request url
-   * - Pasarselo a userService.deleteUser()
-   * - Devolver ok: true y codigo de estado correspondiente
-   */
+  const userIdToDelete = req.params.id;
+
+  userService.deleteUser(userIdToDelete)
+
+  return res.status(200).json({ ok: true })
 })

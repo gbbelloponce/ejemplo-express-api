@@ -15,7 +15,7 @@ export class DB {
     }
 
     this.users = [
-      { id: randomUUID(), firstName: "Galo", lastName: "Bello" }
+      { id: "07784fc1-2e06-42d6-b512-7ddc5c59da0a", firstName: "Galo", lastName: "Bello", email: "gbelloponce@huergo.edu.ar", password: "galo123" }
     ]
 
     // "this" es esta instancia, la meto en la variable estática de mi clase
@@ -42,7 +42,7 @@ export class DB {
   }
 
   createUser(user) {
-    this.users.push(user)
+    this.users.push({ id: randomUUID(), ...user })
   }
 
   updateUser(userToModify) {

@@ -9,21 +9,20 @@ export class UserService {
     return this.db.getAllUsers()
   }
 
-  createUser(userBody) {
-    const newId = randomUUID()
-    const newUser = { id: newId, ...userBody }
+  getUserById(userId) {
+    return this.db.getUserById(userId)
+  }
 
-    this.db.createUser(newUser);
+  createUser(userToCreate) {
+    this.db.createUser(userToCreate);
 
     return newUser;
   }
 
-  updateUser(userId, userBody) {
-    const newUser = { id: userId, ...userBody }
+  updateUser(userToModify) {
+    this.db.updateUser(userToModify)
 
-    this.db.updateUser(newUser)
-
-    return newUser;
+    return userToModify;
   }
 
   deleteUser(userId) {
