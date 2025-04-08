@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 
+import { CreateUser, User } from "../types/user";
+
 // Para el que le interese, esto es un singleton
 // Una clase de la que quiero únicamente una instancia en mi código
 // https://es.wikipedia.org/wiki/Singleton
@@ -7,7 +9,8 @@ import { randomUUID } from "node:crypto";
 // por ejemplo la primera con 2 users y la segunda con 5 users) anden vagando 
 // por mi código
 export class DB {
-  static #instance; // El # es únicamente por gusto, no hace nada especial
+  static #instance: DB; // El # es únicamente por gusto, no hace nada especial
+  private users: User[];
 
   constructor() {
     if (DB.#instance) {
@@ -22,11 +25,7 @@ export class DB {
     DB.#instance = this;
   }
 
-  /**
-   * Método a usar para obtener una instancia de DB
-   * @returns {DB} instancia de DB
-   */
-  static getInstance() {
+  static getInstance(): DB {
     if (!DB.#instance) {
       DB.#instance = new DB();
     }
@@ -37,15 +36,18 @@ export class DB {
     return this.users
   }
 
-  getUserById(userIdToFind) {
+  getUserById(userIdToFind: string) {
     return this.users.find(user => user.id === userIdToFind)
   }
 
-  createUser(user) {
-    this.users.push({ id: randomUUID(), ...user })
+  createUser(user: CreateUser) {
+    const newUser = { id: randomUUID(), ...user };
+    this.users.push(newUser)
+
+    return newUser;
   }
 
-  updateUser(userToModify) {
+  updateUser(userToModify: User) {
 
     // Itero por todos los usuarios de mi DB, .map() devuelve una lista nueva
     this.users = this.users.map(user => {
@@ -64,7 +66,7 @@ export class DB {
 
   }
 
-  deleteUser(userId) {
+  deleteUser(userId: string) {
     this.users = this.users.filter(user => {
       return user.id !== userId
     })
