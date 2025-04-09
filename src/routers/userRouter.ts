@@ -1,6 +1,6 @@
 import { Router } from "express"
 
-import { UserService } from "../services/userService.js"
+import { UserService } from "../services/userService"
 
 const userService = new UserService();
 
@@ -8,19 +8,19 @@ export const userRouter = Router()
 
 userRouter.get('/', (_, res) => {
   const users = userService.getAllUsers();
-  return res.status(200).json({ ok: true, data: users })
+  res.status(200).json({ ok: true, data: users })
 })
 
-userRouter.get('/:id', (_, res) => {
+userRouter.get('/:id', (req, res) => {
   const userIdToGet = req.params.id;
   const user = userService.getUserById(userIdToGet);
-  return res.status(200).json({ ok: true, data: user })
+  res.status(200).json({ ok: true, data: user })
 })
 
 userRouter.post('/', (req, res) => {
   const userFromRequest = req.body;
   const userCreated = userService.createUser(userFromRequest);
-  return res.status(201).json({ ok: true, data: userCreated });
+  res.status(201).json({ ok: true, data: userCreated });
 })
 
 userRouter.put('/:id', (req, res) => {
@@ -29,7 +29,7 @@ userRouter.put('/:id', (req, res) => {
 
   const userModified = userService.updateUser({ id: userIdToModify, ...userBody });
 
-  return res.status(200).json({ ok: true, data: userModified });
+  res.status(200).json({ ok: true, data: userModified });
 })
 
 userRouter.patch('/:id', (req, res) => {
@@ -44,7 +44,7 @@ userRouter.patch('/:id', (req, res) => {
 
   const userModified = userService.updateUser(fullUserBody);
 
-  return res.status(200).json({ ok: true, data: userModified });
+  res.status(200).json({ ok: true, data: userModified });
 })
 
 userRouter.delete('/:id', (req, res) => {
@@ -52,5 +52,5 @@ userRouter.delete('/:id', (req, res) => {
 
   userService.deleteUser(userIdToDelete)
 
-  return res.status(200).json({ ok: true })
+  res.status(200).json({ ok: true })
 })
