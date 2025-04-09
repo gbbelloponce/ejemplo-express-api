@@ -1,5 +1,5 @@
 // Omit permite, dado un type o interface
-// crear otro tipo de dato ommitiendo ciertos campos
+// crear otro tipo de dato omitiendo ciertos campos
 export interface CreateUser extends Omit<User, 'id'> { }
 
 export interface User {
