@@ -1,38 +1,81 @@
-import { DB } from "../db/db";
+import { eq, isNull } from "drizzle-orm";
 
-import { CreateUser } from "../types/user";
-
-import { User } from "../types/user";
+import { db } from "../config/db/db";
+import { UserInsert, User, usersTable } from "../config/db/tables/users";
 
 export class UserService {
+  async getAllUsers() {
+    try {
+      const users = await db
+        .select()
+        .from(usersTable)
+        .where(isNull(usersTable.deletedAt));
 
-  private db: DB;
-
-  constructor() {
-    this.db = DB.getInstance();
+      return users;
+    } catch (error) {
+      console.error(error);
+      throw new Error("Error al obtener usuarios. Mira los logs para más información.")
+    }
   }
 
-  getAllUsers() {
-    return this.db.getAllUsers()
+  async getUserById(userId: string) {
+    try {
+      const users = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.id, userId));
+
+      return users[0];
+    } catch (error) {
+      console.error(error);
+      throw new Error(`Error al obtener usuario con id ${userId}. Mira los logs para más información.`)
+    }
   }
 
-  getUserById(userId: string) {
-    return this.db.getUserById(userId)
+  async createUser(userToCreate: UserInsert) {
+    try {
+      const user = await db
+        .insert(usersTable)
+        .values(userToCreate)
+        .returning();
+
+      return user;
+    } catch (error) {
+      console.error("Error creando usuario: ", userToCreate)
+      console.error(error);
+      throw new Error("Error al crear usuario. Mira los logs para más información.")
+    }
   }
 
-  createUser(userToCreate: CreateUser) {
-    const userCreated = this.db.createUser(userToCreate);
+  async updateUser(userToModify: User) {
+    try {
+      const users = await db
+        .update(usersTable)
+        .set(userToModify)
+        .returning()
 
-    return userCreated;
+      return users[0]
+    } catch (error) {
+      console.error("Error actualizando usuario: ", userToModify)
+      console.error(error);
+      throw new Error(`Error al actualizar el usuario con id ${userToModify.id}. Mira los logs para más información.`)
+    }
   }
 
-  updateUser(userToModify: User) {
-    this.db.updateUser(userToModify)
+  async deleteUser(userId: string) {
+    try {
+      const user = await db
+        .update(usersTable)
+        .set({
+          deletedAt: new Date()
+        })
+        .where(eq(usersTable.id, userId))
+        .returning()
 
-    return userToModify;
-  }
-
-  deleteUser(userId: string) {
-    this.db.deleteUser(userId)
+      return user[0];
+    } catch (error) {
+      console.error(error);
+      throw new Error(`Error al eliminar el usuario con id ${userId}. Mira los logs para más información.`)
+    }
   }
 }
