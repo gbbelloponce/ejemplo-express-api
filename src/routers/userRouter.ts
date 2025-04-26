@@ -18,7 +18,7 @@ userRouter.get('/', async (_, res) => {
 userRouter.get('/:id', async (req, res) => {
   try {
     const userIdToGet = req.params.id;
-    const user = await userService.getUserById(userIdToGet);
+    const user = await userService.getUserProfileById(userIdToGet);
     res.status(200).json({ ok: true, data: user })
   } catch (error) {
     res.status(500).json({ ok: false, error: (error as any).message })

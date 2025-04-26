@@ -32,6 +32,22 @@ export class UserService {
     }
   }
 
+  async getUserProfileById(userId: string) {
+    try {
+      const userWithPosts = await db.query.usersTable.findFirst({
+        where: (users, { eq }) => eq(users.id, userId),
+        with: {
+          posts: true
+        }
+      })
+
+      return userWithPosts;
+    } catch (error) {
+      console.error(error);
+      throw new Error(`Error al obtener perfil de usuario con id ${userId}. Mira los logs para más información.`)
+    }
+  }
+
   async createUser(userToCreate: UserInsert) {
     try {
       const user = await db
