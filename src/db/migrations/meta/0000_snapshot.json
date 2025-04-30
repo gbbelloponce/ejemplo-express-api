@@ -1,6 +1,6 @@
 {
-  "id": "60835906-de5b-41c7-9d00-c2fe56313490",
-  "prevId": "dda77b04-a3f9-4597-a37a-f9ac9be43b4d",
+  "id": "af222a3f-071c-4836-8b54-20cf277fc4e3",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -21,8 +21,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "userId": {
-          "name": "userId",
+        "authorId": {
+          "name": "authorId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -43,12 +43,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "posts_userId_users_id_fk": {
-          "name": "posts_userId_users_id_fk",
+        "posts_authorId_users_id_fk": {
+          "name": "posts_authorId_users_id_fk",
           "tableFrom": "posts",
           "tableTo": "users",
           "columnsFrom": [
-            "userId"
+            "authorId"
           ],
           "columnsTo": [
             "id"

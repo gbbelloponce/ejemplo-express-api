@@ -4,11 +4,11 @@ import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { postsTable } from "./posts";
 
 export const usersTable = pgTable('users', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  firstName: text('firstName').notNull(),
-  lastName: text('lastName').notNull(),
-  email: text('email').notNull().unique(),
-  password: text('password').notNull(),
+  id: uuid().primaryKey().defaultRandom(),
+  firstName: text().notNull(),
+  lastName: text().notNull(),
+  email: text().notNull().unique(),
+  password: text().notNull(),
   createdAt: timestamp().defaultNow(),
   deletedAt: timestamp()
 })
@@ -20,4 +20,4 @@ export const usersTableRelations = relations(usersTable, ({ many }) => ({
 }));
 
 export type User = typeof usersTable.$inferSelect;
-export type UserInsert = typeof usersTable.$inferInsert;
+export type UserCreate = typeof usersTable.$inferInsert;

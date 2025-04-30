@@ -5,9 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "tsx --watch src/index.ts",
-    "db:generate-migration": "drizzle-kit generate --config=./src/config/db/drizzle.config.ts",
-    "db:migrate": "drizzle-kit migrate --config=./src/config/db/drizzle.config.ts",
-    "db:studio": "drizzle-kit studio --config=./src/config/db/drizzle.config.ts"
+    "db:generate-migration": "drizzle-kit generate --config=./src/db/drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config=./src/db/drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config=./src/db/drizzle.config.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",

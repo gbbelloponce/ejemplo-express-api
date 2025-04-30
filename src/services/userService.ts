@@ -1,7 +1,7 @@
 import { eq, isNull } from "drizzle-orm";
 
-import { db } from "../config/db/db";
-import { UserInsert, User, usersTable } from "../config/db/tables/users";
+import { db } from "../db/db";
+import { UserCreate, User, usersTable } from "../db/tables/users";
 
 export class UserService {
   async getAllUsers() {
@@ -48,7 +48,7 @@ export class UserService {
     }
   }
 
-  async createUser(userToCreate: UserInsert) {
+  async createUser(userToCreate: UserCreate) {
     try {
       const user = await db
         .insert(usersTable)
