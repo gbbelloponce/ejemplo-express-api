@@ -28,6 +28,10 @@ export class PostService {
         }
       })
 
+      if (!post) {
+        throw new Error(`No se encontró el posteo con id ${post}`)
+      }
+
       return post;
     } catch (error) {
       console.error(error);

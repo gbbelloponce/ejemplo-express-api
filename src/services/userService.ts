@@ -6,10 +6,7 @@ import { UserCreate, User, usersTable } from "../db/tables/users";
 export class UserService {
   async getAllUsers() {
     try {
-      const users = await db
-        .select()
-        .from(usersTable)
-        .where(isNull(usersTable.deletedAt));
+      const users = await db.query.usersTable.findMany()
 
       return users;
     } catch (error) {
@@ -20,12 +17,15 @@ export class UserService {
 
   async getUserById(userId: string) {
     try {
-      const users = await db
-        .select()
-        .from(usersTable)
-        .where(eq(usersTable.id, userId));
+      const user = await db.query.usersTable.findFirst({
+        where: (users, { eq }) => eq(users.id, userId)
+      })
 
-      return users[0];
+      if (!user) {
+        throw new Error(`No se encontró el usuario con id ${userId}`)
+      }
+
+      return user;
     } catch (error) {
       console.error(error);
       throw new Error(`Error al obtener usuario con id ${userId}. Mira los logs para más información.`)
@@ -40,6 +40,10 @@ export class UserService {
           posts: true
         }
       })
+
+      if (!userWithPosts) {
+        throw new Error(`No se encontró el usuario con id ${userId}`)
+      }
 
       return userWithPosts;
     } catch (error) {
@@ -65,6 +69,15 @@ export class UserService {
 
   async updateUser(userToModify: User) {
     try {
+
+      const existingUser = await db.query.usersTable.findFirst({
+        where: (users, { eq }) => eq(users.id, userToModify.id)
+      })
+
+      if (!existingUser) {
+        throw new Error(`No se encontró el usuario con id ${userToModify.id}`)
+      }
+
       const users = await db
         .update(usersTable)
         .set(userToModify)
@@ -80,6 +93,15 @@ export class UserService {
 
   async deleteUser(userId: string) {
     try {
+
+      const existingUser = await db.query.usersTable.findFirst({
+        where: (users, { eq }) => eq(users.id, userId)
+      })
+
+      if (!existingUser) {
+        throw new Error(`No se encontró el usuario con id ${userId}`)
+      }
+
       const user = await db
         .update(usersTable)
         .set({
