@@ -1,12 +1,25 @@
-import { eq, isNull } from "drizzle-orm";
+import { User } from "@prisma/client";
 
 import { db } from "../db/db";
-import { UserCreate, User, usersTable } from "../db/tables/users";
+
+interface CreateUserBody {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+}
 
 export class UserService {
   async getAllUsers() {
     try {
-      const users = await db.query.usersTable.findMany()
+      const users = await db.user.findMany({
+        where: {
+          deletedAt: null
+        },
+        include: {
+          posts: true
+        }
+      })
 
       return users;
     } catch (error) {
@@ -17,8 +30,14 @@ export class UserService {
 
   async getUserById(userId: string) {
     try {
-      const user = await db.query.usersTable.findFirst({
-        where: (users, { eq }) => eq(users.id, userId)
+      const user = await db.user.findFirst({
+        where: {
+          id: userId,
+          deletedAt: null
+        },
+        include: {
+          posts: true
+        }
       })
 
       if (!user) {
@@ -34,9 +53,12 @@ export class UserService {
 
   async getUserProfileById(userId: string) {
     try {
-      const userWithPosts = await db.query.usersTable.findFirst({
-        where: (users, { eq }) => eq(users.id, userId),
-        with: {
+      const userWithPosts = await db.user.findFirst({
+        where: {
+          id: userId,
+          deletedAt: null
+        },
+        include: {
           posts: true
         }
       })
@@ -52,65 +74,68 @@ export class UserService {
     }
   }
 
-  async createUser(userToCreate: UserCreate) {
+  async createUser(body: CreateUserBody) {
     try {
-      const user = await db
-        .insert(usersTable)
-        .values(userToCreate)
-        .returning();
+      const user = await db.user.create({
+        data: body
+      })
 
       return user;
     } catch (error) {
-      console.error("Error creando usuario: ", userToCreate)
+      console.error("Error creando usuario: ", body)
       console.error(error);
       throw new Error("Error al crear usuario. Mira los logs para más información.")
     }
   }
 
-  async updateUser(userToModify: User) {
+  async updateUser(body: User) {
     try {
 
-      const existingUser = await db.query.usersTable.findFirst({
-        where: (users, { eq }) => eq(users.id, userToModify.id)
+      const existingUser = await db.user.findFirst({
+        where: {
+          id: body.id,
+          deletedAt: null
+        }
       })
 
       if (!existingUser) {
-        throw new Error(`No se encontró el usuario con id ${userToModify.id}`)
+        throw new Error(`No se encontró el usuario con id ${body.id}`)
       }
 
-      const users = await db
-        .update(usersTable)
-        .set(userToModify)
-        .returning()
+      const updatedUser = await db.user.update({
+        where: { id: body.id, deletedAt: null },
+        data: body
+      })
 
-      return users[0]
+      return updatedUser
     } catch (error) {
-      console.error("Error actualizando usuario: ", userToModify)
+      console.error("Error actualizando usuario: ", body)
       console.error(error);
-      throw new Error(`Error al actualizar el usuario con id ${userToModify.id}. Mira los logs para más información.`)
+      throw new Error(`Error al actualizar el usuario con id ${body.id}. Mira los logs para más información.`)
     }
   }
 
   async deleteUser(userId: string) {
     try {
-
-      const existingUser = await db.query.usersTable.findFirst({
-        where: (users, { eq }) => eq(users.id, userId)
+      const existingUser = await db.post.findFirst({
+        where: {
+          id: userId,
+          deletedAt: null
+        }
       })
 
       if (!existingUser) {
-        throw new Error(`No se encontró el usuario con id ${userId}`)
+        throw new Error(`No se encontró el posteo con id ${userId}`)
       }
 
-      const user = await db
-        .update(usersTable)
-        .set({
+      const deletedUser = await db.post.update({
+        where: { id: userId },
+        data: {
           deletedAt: new Date()
-        })
-        .where(eq(usersTable.id, userId))
-        .returning()
+        }
+      })
 
-      return user[0];
+      return deletedUser;
     } catch (error) {
       console.error(error);
       throw new Error(`Error al eliminar el usuario con id ${userId}. Mira los logs para más información.`)

@@ -1,13 +1,22 @@
-import { eq, isNull } from "drizzle-orm";
+
+
+import { Post } from "@prisma/client";
 
 import { db } from "../db/db";
-import { PostCreate, Post, postsTable } from "../db/tables/posts";
+
+interface CreatePostBody {
+  content: string
+  authorId: string
+}
 
 export class PostService {
   async getAllPosts() {
     try {
-      const posts = await db.query.postsTable.findMany({
-        with: {
+      const posts = await db.post.findMany({
+        where: {
+          deletedAt: null
+        },
+        include: {
           author: true
         }
       });
@@ -21,9 +30,9 @@ export class PostService {
 
   async getPostById(postId: string) {
     try {
-      const post = await db.query.postsTable.findFirst({
-        where: (posts, { eq }) => eq(posts.id, postId),
-        with: {
+      const post = await db.post.findFirst({
+        where: { id: postId, deletedAt: null },
+        include: {
           author: true
         }
       })
@@ -39,48 +48,69 @@ export class PostService {
     }
   }
 
-  async createPost(postToCreate: PostCreate) {
+  async createPost(body: CreatePostBody) {
     try {
-      const user = await db
-        .insert(postsTable)
-        .values(postToCreate)
-        .returning();
+      const post = await db.post.create({
+        data: body
+      })
 
-      return user;
+      return post;
     } catch (error) {
-      console.error("Error creando posteo: ", postToCreate)
+      console.error("Error creando posteo: ", body)
       console.error(error);
       throw new Error("Error al crear posteo. Mira los logs para más información.")
     }
   }
 
-  async updatePost(postToModify: Post) {
+  async updatePost(body: Post) {
     try {
-      const users = await db
-        .update(postsTable)
-        .set(postToModify)
-        .where(eq(postsTable.id, postToModify.id))
-        .returning()
 
-      return users[0]
+      const existingPost = await db.post.findFirst({
+        where: {
+          id: body.id,
+          deletedAt: null
+        }
+      })
+
+      if (!existingPost) {
+        throw new Error(`No se encontró el posteo con id ${body.id}`)
+      }
+
+      const updatedPost = await db.post.update({
+        where: { id: body.id, deletedAt: null },
+        data: body
+      })
+
+      return updatedPost
     } catch (error) {
-      console.error("Error actualizando posteo: ", postToModify)
+      console.error("Error actualizando posteo: ", body)
       console.error(error);
-      throw new Error(`Error al actualizar el posteo con id ${postToModify.id}. Mira los logs para más información.`)
+      throw new Error(`Error al actualizar el posteo con id ${body.id}. Mira los logs para más información.`)
     }
   }
 
   async deletePost(postId: string) {
     try {
-      const user = await db
-        .update(postsTable)
-        .set({
-          deletedAt: new Date()
-        })
-        .where(eq(postsTable.id, postId))
-        .returning()
 
-      return user[0];
+      const existingPost = await db.post.findFirst({
+        where: {
+          id: postId,
+          deletedAt: null
+        }
+      })
+
+      if (!existingPost) {
+        throw new Error(`No se encontró el posteo con id ${postId}`)
+      }
+
+      const deletedPost = await db.post.update({
+        where: { id: postId },
+        data: {
+          deletedAt: new Date()
+        }
+      })
+
+      return deletedPost;
     } catch (error) {
       console.error(error);
       throw new Error(`Error al eliminar el posteo con id ${postId}. Mira los logs para más información.`)
