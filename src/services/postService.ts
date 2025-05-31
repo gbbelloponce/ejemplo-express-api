@@ -6,7 +6,7 @@ import { db } from "../db/db";
 
 interface CreatePostBody {
   content: string
-  authorId: string
+  authorId: number
 }
 
 export class PostService {
@@ -28,7 +28,7 @@ export class PostService {
     }
   }
 
-  async getPostById(postId: string) {
+  async getPostById(postId: number) {
     try {
       const post = await db.post.findFirst({
         where: { id: postId, deletedAt: null },
@@ -89,7 +89,7 @@ export class PostService {
     }
   }
 
-  async deletePost(postId: string) {
+  async deletePost(postId: number) {
     try {
 
       const existingPost = await db.post.findFirst({

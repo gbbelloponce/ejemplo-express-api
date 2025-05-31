@@ -17,7 +17,7 @@ postRouter.get('/', async (_, res) => {
 
 postRouter.get('/:id', async (req, res) => {
   try {
-    const postIdToGet = req.params.id;
+    const postIdToGet = Number(req.params.id);
     const post = await postService.getPostById(postIdToGet);
     res.status(200).json({ ok: true, data: post })
   } catch (error) {
@@ -27,9 +27,12 @@ postRouter.get('/:id', async (req, res) => {
 
 postRouter.post('/', async (req, res) => {
   try {
-    const userFromRequest = req.body;
-    const userCreated = await postService.createPost(userFromRequest);
-    res.status(201).json({ ok: true, data: userCreated });
+    const postFromRequest = req.body;
+    const postCreated = await postService.createPost({
+      ...postFromRequest,
+      authorId: req.context.user.id
+    });
+    res.status(201).json({ ok: true, data: postCreated });
   } catch (error) {
     res.status(500).json({ ok: false, error: (error as any).message })
   }
@@ -38,9 +41,9 @@ postRouter.post('/', async (req, res) => {
 postRouter.put('/:id', async (req, res) => {
   try {
     const postIdToModify = req.params.id;
-    const postBody = req.body;
+    const postFromRequest = req.body;
 
-    const postModified = await postService.updatePost({ id: postIdToModify, ...postBody });
+    const postModified = await postService.updatePost({ id: postIdToModify, ...postFromRequest });
 
     res.status(200).json({ ok: true, data: postModified });
   } catch (error) {
@@ -50,14 +53,14 @@ postRouter.put('/:id', async (req, res) => {
 
 postRouter.patch('/:id', async (req, res) => {
   try {
-    const postIdToModify = req.params.id;
-    const postBody = req.body;
+    const postIdToModify = Number(req.params.id);
+    const postFromRequest = req.body;
 
     const fullPost = await postService.getPostById(postIdToModify);
 
     // Primero desestructuro todo el fullUser, luego desestructuro los atributos que me
     // hayan pasado en el body para sobrescribir los primeros
-    const fullPostBody = { ...fullPost, ...postBody }
+    const fullPostBody = { ...fullPost, ...postFromRequest }
 
     const postModified = await postService.updatePost(fullPostBody);
 
@@ -69,7 +72,7 @@ postRouter.patch('/:id', async (req, res) => {
 
 postRouter.delete('/:id', async (req, res) => {
   try {
-    const postIdToDelete = req.params.id;
+    const postIdToDelete = Number(req.params.id);
 
     await postService.deletePost(postIdToDelete)
 

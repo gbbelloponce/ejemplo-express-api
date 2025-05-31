@@ -1,5 +1,7 @@
 import { User } from "@prisma/client";
 
+import { hash } from "bcrypt"
+
 import { db } from "../db/db";
 
 interface CreateUserBody {
@@ -28,7 +30,7 @@ export class UserService {
     }
   }
 
-  async getUserById(userId: string) {
+  async getUserById(userId: number) {
     try {
       const user = await db.user.findFirst({
         where: {
@@ -51,7 +53,7 @@ export class UserService {
     }
   }
 
-  async getUserProfileById(userId: string) {
+  async getUserProfileById(userId: number) {
     try {
       const userWithPosts = await db.user.findFirst({
         where: {
@@ -77,7 +79,12 @@ export class UserService {
   async createUser(body: CreateUserBody) {
     try {
       const user = await db.user.create({
-        data: body
+        data: {
+          firstName: body.firstName,
+          lastName: body.lastName,
+          email: body.email,
+          password: await hash(body.password, 10),
+        }
       })
 
       return user;
@@ -115,7 +122,7 @@ export class UserService {
     }
   }
 
-  async deleteUser(userId: string) {
+  async deleteUser(userId: number) {
     try {
       const existingUser = await db.post.findFirst({
         where: {
