@@ -76,6 +76,30 @@ export class UserService {
     }
   }
 
+  async getUserByToken(token: string) {
+    try {
+      const user = await db.user.findFirst({
+        where: {
+          sessions: {
+            some: {
+              token
+            }
+          }
+        }
+      })
+
+      if (!user) {
+        throw new Error("No se encontró el usuario con el token proporcionado")
+      }
+
+      return user;
+    }
+    catch (error) {
+      console.error(error);
+      throw new Error("Error al obtener usuario por token. Mira los logs para más información.")
+    }
+  }
+
   async createUser(body: CreateUserBody) {
     try {
       const user = await db.user.create({
